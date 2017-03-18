@@ -1,0 +1,13 @@
+.droppable {
+  height: 100px;
+  background-color: green;
+}
+
+.notDroppable {
+  height: 100px;
+  background-color: red;
+}
+
+.widget {
+  background-color: blue;
+}

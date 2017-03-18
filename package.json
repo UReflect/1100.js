@@ -5,7 +5,7 @@
   "main": "./build/index.js",
   "scripts": {
     "clean": "rm -rf lib",
-    "precompile": "mkdir lib",
+    "precompile": "npm run clean && mkdir lib",
     "compile": "webpack",
     "start": "http-server"
   },
