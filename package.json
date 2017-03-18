@@ -1,0 +1,34 @@
+{
+  "name": "1100.js",
+  "version": "1.0.0",
+  "description": "1100",
+  "main": "./build/index.js",
+  "scripts": {
+    "clean": "rm -rf lib",
+    "precompile": "mkdir lib",
+    "compile": "webpack",
+    "start": "http-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UReflect/1100.js.git"
+  },
+  "author": "Adrien Milcent",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/UReflect/1100.js/issues"
+  },
+  "homepage": "https://github.com/UReflect/1100.js#readme",
+  "devDependencies": {
+    "babel-cli": "^6.24.0",
+    "babel-core": "^6.24.0",
+    "babel-loader": "^6.4.1",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-preset-es2015": "^6.24.0",
+    "http-server": "^0.9.0",
+    "webpack": "^2.2.1"
+  },
+  "files": [
+    "lib"
+  ]
+}
