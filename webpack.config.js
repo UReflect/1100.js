@@ -3,11 +3,11 @@ var path = require('path');
 
 module.exports = {
   context: path.join(__dirname, ''),
-  entry: './src/milcen.js',
+  entry: './src/MC.js',
   output: {
     path: path.join(__dirname, 'lib'),
-    filename: 'milcen.js',
-    library: 'Milcen',
+    filename: 'MC.js',
+    library: 'MC',
     //libraryTarget: 'umd',
     umdNamedDefine: true
   },

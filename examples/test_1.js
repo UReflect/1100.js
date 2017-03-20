@@ -1,8 +1,12 @@
 // Test file
 
-var milcen = new Milcen(".widget");
+var mcsolar = new MC('.widget', ['draggable']);
 var cnt = 0
 
-milcen.on("dragstart", function(event) {
-  console.log(event.dx);
-});
+mcsolar
+  .on('click', function(event) {
+    console.log('Simple click !!');
+  })
+  .on('dblclick', function(event) {
+    console.log('Double click !!');
+  });

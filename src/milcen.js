@@ -1,14 +1,20 @@
 import {Type} from './type.js'
+import {Draggable} from './draggable.js'
+import {Resizable} from './resizable.js'
 
-class Milcen {
+class MC {
 
-  // Milcen constructor
-  constructor(identifier) {
+  // MC constructor
+  constructor(identifier, modifiers=[]) {
     this._identifier = identifier;
+    this._modifiers_list = modifiers;
     this._type = new Type();
+    this._modifiers = new Set();
+
+    for (let [idx, modifier] of this._modifiers_list.entries()) this[modifier]();
   }
 
-  // Store events in the eventList
+  // Set listener on element
   on(event, func, useCapture=false) {
     if (this._type.isString(event)) {
       event = event.trim().split(/ /);
@@ -23,6 +29,16 @@ class Milcen {
         }
       }
     }
+
+    return this;
+  }
+
+  draggable() {
+    if (!('draggable' in this._modifiers)) this._modifiers.add(new Draggable());
+  }
+
+  resizable() {
+    if (!('resizable' in this._modifiers)) this._modifiers.add(new Resizable());
   }
 
   // Get identifier
@@ -37,4 +53,4 @@ class Milcen {
   }
 }
 
-module.exports = Milcen;
+module.exports = MC;

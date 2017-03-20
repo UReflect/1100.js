@@ -1,7 +1,7 @@
 {
-  "name": "1100.js",
+  "name": "MC.js",
   "version": "1.0.0",
-  "description": "1100",
+  "description": "Vous l'avez ?",
   "main": "./build/index.js",
   "scripts": {
     "clean": "rm -rf lib",
