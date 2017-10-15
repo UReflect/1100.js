@@ -4,13 +4,13 @@ export class Draggable {
     console.log("New Draggable !!");
 
     this._identifier = identifier;
-    setupDraggable();
+    this.setupDraggable();
   }
 
   setupDraggable() {
     let elements = window.document.querySelectorAll(this._identifier);
       for (let [idx, elem] of elements.entries()) {
-        
+
       }
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "MC.js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Vous l'avez ?",
   "main": "./build/index.js",
   "scripts": {
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/UReflect/1100.js.git"
+    "url": "git+https://github.com/UReflect/MC.js.git"
   },
   "author": "Adrien Milcent",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/UReflect/1100.js/issues"
+    "url": "https://github.com/UReflect/MC.js/issues"
   },
-  "homepage": "https://github.com/UReflect/1100.js#readme",
+  "homepage": "https://github.com/UReflect/MC.js#readme",
   "devDependencies": {
     "babel-cli": "^6.24.0",
     "babel-core": "^6.24.0",

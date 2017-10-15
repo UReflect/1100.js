@@ -5,17 +5,19 @@
     <meta charset='utf-8'>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>MC JS</title>
-    <script type="text/javascript" src="lib/milcen.js"></script>
+    <script type="text/javascript" src="lib/MC.js"></script>
     <link rel="stylesheet" href="examples/css/style_test_1.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   </head>
   <body>
     <script defer type="text/javascript" src="examples/test_1.js"></script>
-    <div class="droppable">
-    </div>
-    <div class="notDroppable">
-    </div>
-    <div class="widget">
-      <p>Toto</p>
+    <div id="widget-container">
+      <div class="widget">
+        <span>Item 1</span>
+      </div>
+      <div class="widget">
+        <span>Item 2</span>
+      </div>
     </div>
   </body>
 </html>

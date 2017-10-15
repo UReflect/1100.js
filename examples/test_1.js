@@ -1,6 +1,12 @@
 // Test file
 
-var mcsolar = new MC('.widget', ['draggable']);
+$('.widget').css('height', $(window).height() / 10);
+$('.widget').css('width', $(window).width() / 10);
+
+var mcsolar = new MC('.widget', {
+  resizable: false,
+  container: '#widget-container'
+});
 var cnt = 0
 
 mcsolar

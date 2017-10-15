@@ -1,13 +1,15 @@
-.droppable {
-  height: 100px;
-  background-color: green;
-}
-
-.notDroppable {
-  height: 100px;
-  background-color: red;
+#widget-container {
+  background-color: blue;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  overflow: auto;
 }
 
 .widget {
-  background-color: blue;
+  background-color: red;
+  margin: 10px;
+  float: left;
 }

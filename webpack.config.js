@@ -8,7 +8,7 @@ module.exports = {
     path: path.join(__dirname, 'lib'),
     filename: 'MC.js',
     library: 'MC',
-    //libraryTarget: 'umd',
+    libraryTarget: 'umd',
     umdNamedDefine: true
   },
   module: {
@@ -21,6 +21,9 @@ module.exports = {
     ]
   },
   resolve: {
-    modules: [path.resolve('./src')]
+    modules: [
+      path.resolve('./src'),
+      "node_modules"
+    ]
   }
 }
