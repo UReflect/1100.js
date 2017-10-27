@@ -5,6 +5,9 @@
 
 var mcsolar = new MC('.widget', {
   container: 'widget-container',
+  drag: {
+    clickType: 'longClick'
+  },
   grid: {
     debug: false,
     pile: false

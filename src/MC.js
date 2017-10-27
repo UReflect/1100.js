@@ -23,12 +23,18 @@ class MC {
     // Grid
     this._grid = null;
 
+    // Drag click type
+    this._dragClickType = 0;
+
     this.setupMCOptions(options);
   }
 
   setupMCOptions(options) {
 
     if (Object.keys(options).includes('container')) this._container = document.getElementById(options.container);
+    if (Object.keys(options).includes('drag')) {
+        if (options.drag.clickType) this._dragClickType = options.drag.clickType == 'longClick' ? 500 : 0;
+    }
 
     if (!Object.keys(options).includes('draggable') || (Object.keys(options).includes('draggable') && options.draggable == true)) {
       var elements = document.querySelectorAll(this._identifier);
@@ -42,6 +48,7 @@ class MC {
     self = this;
     Array.prototype.forEach.call(elements, function(el, i) {
 
+      var pressTimer;
       var isDragReady = false;
       var dragoffset = {
         elem: null,
@@ -51,42 +58,51 @@ class MC {
 
       el.addEventListener('mousedown', function (e) {
         e.preventDefault();
-        isDragReady = true;
+        var elem = this;
 
-        this.style.zIndex = 999;
+        pressTimer = window.setTimeout(function() {
+          isDragReady = true;
 
-        if (!e.pageX) {
-          e.pageX = e.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
-          e.pageY = e.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
-        }
-        dragoffset.x = e.pageX - el.offsetLeft;
-        dragoffset.y = e.pageY - el.offsetTop;
-        dragoffset.elem = this;
+          elem.style.zIndex = 999;
+
+          if (!e.pageX) {
+            e.pageX = e.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
+            e.pageY = e.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
+          }
+          dragoffset.x = e.pageX - el.offsetLeft;
+          dragoffset.y = e.pageY - el.offsetTop;
+          dragoffset.elem = elem;
+        }, self._dragClickType);
       });
-      el.addEventListener('mouseup', function (e) {
-        isDragReady = false;
-        this.style.zIndex = 0;
-        if (self._grid) {
-          var l = self._grid.calculateLocation(parseFloat(this.style.left),
-                                               parseFloat(this.style.top),
-                                               parseFloat(this.offsetWidth), parseFloat(this.offsetHeight));
+      document.addEventListener('mouseup', function (e) {
+        clearTimeout(pressTimer);
+        if (dragoffset.elem) {
+          isDragReady = false;
+          dragoffset.elem.style.zIndex = 0;
+          if (self._grid) {
+            var l = self._grid.calculateLocation(parseFloat(dragoffset.elem.style.left),
+                                                 parseFloat(dragoffset.elem.style.top),
+                                                 parseFloat(dragoffset.elem.offsetWidth), parseFloat(dragoffset.elem.offsetHeight));
 
-          this.style.top = l.y + 'px';
-          this.style.left = l.x + 'px';
-        } else {
-          this.style.top = e.pageY + 'px';
-          this.style.left = e.pageX + 'px';
+            dragoffset.elem.style.top = l.y + 'px';
+            dragoffset.elem.style.left = l.x + 'px';
+          } else {
+            dragoffset.elem.style.top = e.pageY + 'px';
+            dragoffset.elem.style.left = e.pageX + 'px';
+          }
         }
       });
       document.addEventListener('mousemove', function (e) {
         if (isDragReady) {
-          if (!e.pageX) {
-            e.pageX = e.pageX || e.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
-            e.pageY = e.pageY || e.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
-          }
+          if (dragoffset.elem) {
+            if (!e.pageX) {
+              e.pageX = e.pageX || e.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
+              e.pageY = e.pageY || e.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
+            }
 
-          dragoffset.elem.style.top = ((e.pageY - dragoffset.y) + dragoffset.elem.offsetHeight > self._container.offsetHeight ? self._container.offsetHeight - dragoffset.elem.offsetHeight : ((e.pageY - dragoffset.y) < 0 ? 0 : (e.pageY - dragoffset.y))) + 'px';
-          dragoffset.elem.style.left = ((e.pageX - dragoffset.x) + dragoffset.elem.offsetWidth > self._container.offsetWidth ? self._container.offsetWidth - dragoffset.elem.offsetWidth : ((e.pageX - dragoffset.x) < 0 ? 0 : (e.pageX - dragoffset.x))) + 'px';
+            dragoffset.elem.style.top = ((e.pageY - dragoffset.y) + dragoffset.elem.offsetHeight > self._container.offsetHeight ? self._container.offsetHeight - dragoffset.elem.offsetHeight : ((e.pageY - dragoffset.y) < 0 ? 0 : (e.pageY - dragoffset.y))) + 'px';
+            dragoffset.elem.style.left = ((e.pageX - dragoffset.x) + dragoffset.elem.offsetWidth > self._container.offsetWidth ? self._container.offsetWidth - dragoffset.elem.offsetWidth : ((e.pageX - dragoffset.x) < 0 ? 0 : (e.pageX - dragoffset.x))) + 'px';
+          }
         }
       });
     });
