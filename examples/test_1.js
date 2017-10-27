@@ -1,11 +1,14 @@
 // Test file
 
-$('.widget').css('height', $(window).height() / 10);
-$('.widget').css('width', $(window).width() / 10);
+// $('.widget').css('width', $(window).width() / 10);
+// $('.widget').css('height', $(window).height() / 10);
 
 var mcsolar = new MC('.widget', {
-  resizable: false,
-  container: '#widget-container'
+  container: 'widget-container',
+  grid: {
+    debug: false,
+    pile: false
+  }
 });
 var cnt = 0
 
