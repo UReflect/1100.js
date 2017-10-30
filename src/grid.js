@@ -38,7 +38,7 @@ export class Grid {
     });
   }
 
-  calculateLocation(posX, posY, wwidth, wheight) {
+  calculateDragLocation(posX, posY, wwidth, wheight) {
 
     var val = [];
     var elements = document.querySelectorAll(self._identifier);
@@ -79,6 +79,17 @@ export class Grid {
     }
 
     return {x: tmpX, y: tmpY};
+  }
+
+  calculateResizeLocation(posX, posY, wwidth, wheight) {
+    var l = this.calculateDragLocation(posX, posY, wwidth, wheight);
+
+    return {
+      x: l.x,
+      y: l.y,
+      w: wwidth,
+      h: wheight
+    };
   }
 
   showDebug() {
