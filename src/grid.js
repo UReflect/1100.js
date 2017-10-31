@@ -49,7 +49,7 @@ export class Grid {
           top: parseFloat(el.style.top),
           left: parseFloat(el.style.left),
           width: parseFloat(el.offsetWidth),
-          height: parseFloat(el.offsetHeight),
+          height: parseFloat(el.offsetHeight)
         });
       }
     });
@@ -78,18 +78,61 @@ export class Grid {
       }
     }
 
-    return {x: tmpX, y: tmpY};
+    return {x: tmpX, y: tmpY, difWidth: tmpX - posX, difHeight: tmpY - posY};
   }
 
-  calculateResizeLocation(posX, posY, wwidth, wheight) {
-    var l = this.calculateDragLocation(posX, posY, wwidth, wheight);
+  calculateResizeLocation(posX, posY, wwidth, wheight, resizeOpt) {
+    // var l = this.calculateDragLocation(posX, posY, wwidth, wheight);
+    console.log(posX + ' : ' + posY + ' : ' + wwidth + ' : ' + wheight);
+    var result = {x: 0, y: 0, w: 0, h: 0};
 
-    return {
-      x: l.x,
-      y: l.y,
-      w: wwidth,
-      h: wheight
-    };
+    if (resizeOpt.top) {
+      let results = this.calculateDragLocation(posX, posY, wwidth, wheight);
+      result.y = results.y;
+      result.h = wheight - results.difHeight;
+    } else if (resizeOpt.bottom) {
+      let results = this.calculateDragLocation(posX, posY, wwidth, wheight);
+      let ch = this._height / this._sizeY;
+      if (wheight % ch >= ch / 2 && wheight >= ch / 2)
+        result.h = wheight + (ch - (wheight % ch)) - 1;
+      else if (wheight >= ch / 2)
+        result.h = wheight - (wheight % ch) - 1;
+      else
+        result.h = ch - 0.5;
+      result.y = posY;
+    } else {
+      result.y = posY;
+      result.h = wheight;
+    }
+
+    if (resizeOpt.left) {
+      let results = this.calculateDragLocation(posX, posY, wwidth, wheight);
+      result.x = results.x;
+      result.w = wwidth - results.difWidth;
+    } else if (resizeOpt.right) {
+      let results = this.calculateDragLocation(posX, posY, wwidth, wheight);
+      let ch = this._width / this._sizeX;
+      if (wwidth % ch >= ch / 2 && wwidth >= ch / 2)
+        result.w = wwidth + (ch - (wwidth % ch)) - 1;
+      else if (wwidth >= ch / 2)
+        result.w = wwidth - (wwidth % ch) - 1;
+      else
+        result.w = ch - 0.5;
+      result.x = posX;
+    } else {
+      result.x = posX;
+      result.w = wwidth;
+    }
+
+    return result;
+  }
+
+  snapWidth(move) {
+
+  }
+
+  snapHeight(move) {
+
   }
 
   showDebug() {

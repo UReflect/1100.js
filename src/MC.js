@@ -102,13 +102,15 @@ class MC {
             dragoffset.elem.style.top = l.y + 'px';
             dragoffset.elem.style.left = l.x + 'px';
           } else if (self._grid && isResizeReady) {
-            // var l = self._grid.calculateResizeLocation(parseFloat(dragoffset.elem.style.left),
-            //                                            parseFloat(dragoffset.elem.style.top),
-            //                                            parseFloat(dragoffset.elem.offsetWidth), parseFloat(dragoffset.elem.offsetHeight));
-            // dragoffset.elem.style.top = l.y + 'px';
-            // dragoffset.elem.style.left = l.x + 'px';
-            // dragoffset.elem.style.width = l.w + 'px';
-            // dragoffset.elem.style.height = l.h + 'px';
+            var l = self._grid.calculateResizeLocation(parseFloat(dragoffset.elem.style.left),
+                                                       parseFloat(dragoffset.elem.style.top),
+                                                       parseFloat(dragoffset.elem.offsetWidth), parseFloat(dragoffset.elem.offsetHeight),
+                                                       resizeOpt);
+            console.log(l);
+            dragoffset.elem.style.top = l.y + 'px';
+            dragoffset.elem.style.left = l.x + 'px';
+            dragoffset.elem.style.width = l.w + 'px';
+            dragoffset.elem.style.height = l.h + 'px';
           }
           isDragReady = false;
           isResizeReady = false;
