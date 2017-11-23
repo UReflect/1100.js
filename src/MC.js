@@ -17,7 +17,8 @@ class MC {
     this._resizable = null;
     // Special events
     this._specialEvents = [
-      'pinch'
+      'pinch',
+      'slide'
     ];
     // Grid
     this._grid = null;
@@ -28,9 +29,15 @@ class MC {
     // Init drag variables
     this._dragoffset = {elem: null, x: 0, y: 0, startX: 0, startY: 0, startW: 0, startH: 0, startPosX: 0, startPosY: 0};
     this._pressTimer = null;
-    this.__resizeOpt = {};
+    this._resizeOpt = {};
     this._isDragReady = false
     this._isResizeReady = false;
+    this._isPinchActive = false;
+    this._startPinchDiff = 0;
+    this._lastPinchDiff = 0;
+    this._isSlideActive = false;
+    this._startSlideDiff = [];
+    this._lastSlideDiff = [];
 
     this.setupMCOptions(options);
   }
@@ -158,21 +165,50 @@ class MC {
     }
   }
 
-  // handleSepcialEvents(event, func, useCapture) {
-  //   switch (event) {
-  //     case 'pinch':
-  //       console.log('yoyo');
-  //       document.addEventListener('mousewheel', function(e) {
-  //         if(e.deltaY % 1 !== 0) {
-  //           e.preventDefault();
-  //           console.log('start pinch');
-  //         }
-  //       }, useCapture);
-  //       document.addEventListener('gestureend', func, useCapture);
-  //       break;
-  //   }
-  //
-  // }
+  handleSepcialEvents(event, func, useCapture) {
+    if (event == 'pinch' || event == 'slide') {
+      document.addEventListener('touchstart', function(e) {
+        if (e.touches.length == 2) {
+          this._startPinchDiff = Math.abs(e.touches[0].pageX - e.touches[1].pageX) + Math.abs(e.touches[0].pageY - e.touches[1].pageY);
+          this._isPinchActive = true;
+        } else if (e.touches.length == 3) {
+          this._startSlideDiff[0] = e.touches[0].pageX;
+          this._startSlideDiff[1] = e.touches[1].pageX;
+          this._startSlideDiff[2] = e.touches[2].pageX;
+          this._isSlideActive = true;
+        }
+      }.bind(this), useCapture);
+      document.addEventListener('touchmove', function(e) {
+        if (e.touches.length == 2 && this._isPinchActive) {
+          this._lastPinchDiff = Math.abs(e.touches[0].pageX - e.touches[1].pageX) + Math.abs(e.touches[0].pageY - e.touches[1].pageY);
+        } else if (e.touches.length == 3 && this._isSlideActive) {
+          this._lastSlideDiff[0] = e.touches[0].pageX;
+          this._lastSlideDiff[1] = e.touches[1].pageX;
+          this._lastSlideDiff[2] = e.touches[2].pageX;
+        }
+      }.bind(this), useCapture);
+      document.addEventListener('touchend', function(e) {
+        if (this._isPinchActive) {
+          this._isPinchActive = false;
+          if (this._lastPinchDiff > this._startPinchDiff) {
+            func(this, 'out');
+          } else if (this._lastPinchDiff < this._startPinchDiff) {
+            func(this, 'in');
+          }
+        } else if (this._isSlideActive) {
+          if (this._startSlideDiff[0] > this._lastSlideDiff[0] &&
+              this._startSlideDiff[1] > this._lastSlideDiff[1] &&
+              this._startSlideDiff[2] > this._lastSlideDiff[2]) {
+            func(this, 'left');
+          } else if (this._startSlideDiff[0] < this._lastSlideDiff[0] &&
+                     this._startSlideDiff[1] < this._lastSlideDiff[1] &&
+                     this._startSlideDiff[2] < this._lastSlideDiff[2]) {
+            func(this, 'right');
+          }
+        }
+      }.bind(this), useCapture);
+    }
+  }
 
   on(event, func, useCapture=false) {
     if (this._type.isString(event)) {
