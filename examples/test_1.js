@@ -6,7 +6,7 @@
 var mcsolar = new MC('.widget', {
   container: 'widget-container',
   drag: {
-    clickType: 'simpleClick'
+    clickType: 'longClick'
   },
   grid: {
     debug: true,
@@ -21,4 +21,7 @@ mcsolar
   })
   .on('dblclick', function(event) {
     console.log('Double click !!');
+  })
+  .on('pinch', function(event) {
+    console.log('pinch !');
   });

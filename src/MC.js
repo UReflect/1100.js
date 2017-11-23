@@ -17,7 +17,6 @@ class MC {
     this._resizable = null;
     // Special events
     this._specialEvents = [
-      'longTouch',
       'pinch'
     ];
     // Grid
@@ -25,6 +24,13 @@ class MC {
 
     // Drag click type
     this._dragClickType = 0;
+
+    // Init drag variables
+    this._dragoffset = {elem: null, x: 0, y: 0, startX: 0, startY: 0, startW: 0, startH: 0, startPosX: 0, startPosY: 0};
+    this._pressTimer = null;
+    this.__resizeOpt = {};
+    this._isDragReady = false
+    this._isResizeReady = false;
 
     this.setupMCOptions(options);
   }
@@ -51,101 +57,122 @@ class MC {
   setupDraggable(elements) {
     self = this;
     Array.prototype.forEach.call(elements, function(el, i) {
+      el.addEventListener("touchstart", function(e) { e.preventDefault(); self.onTouchDown(e, el, this); }, false);
+      document.addEventListener('touchend', (e) => { self.onTouchUp(e); }, false);
+      document.addEventListener('touchmove', (e) => { self.onTouchMove(e); }, false);
 
-      var pressTimer, resizeOpt;
-      var isDragReady = false, isResizeReady = false;
-      var dragoffset = {elem: null, x: 0, y: 0, startX: 0, startY: 0, startW: 0, startH: 0, startPosX: 0, startPosY: 0};
-
-      el.addEventListener('mousedown', function (e) {
-        e.preventDefault();
-        var elem = this;
-
-        pressTimer = window.setTimeout(function() {
-          elem.style.zIndex = 999;
-          if (!e.pageX) {
-            e.pageX = e.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
-            e.pageY = e.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
-          }
-          dragoffset.x = e.pageX - el.offsetLeft;
-          dragoffset.y = e.pageY - el.offsetTop;
-          dragoffset.elem = elem;
-
-          resizeOpt = {
-            right: (e.pageX > parseFloat(el.style.left) + parseFloat(el.offsetWidth) - 10 && e.pageX < parseFloat(el.style.left) + parseFloat(el.offsetWidth)) ? true : false,
-            left: (e.pageX > parseFloat(el.style.left) && e.pageX < parseFloat(el.style.left) + 10) ? true : false,
-            top: (e.pageY > parseFloat(el.style.top) && e.pageY < parseFloat(el.style.top) + 10) ? true : false,
-            bottom: (e.pageY > parseFloat(el.style.top) + parseFloat(el.offsetHeight) - 10 && e.pageY < parseFloat(el.style.top) + parseFloat(el.offsetHeight)) ? true : false
-          };
-
-          if (resizeOpt.left || resizeOpt.right || resizeOpt.top || resizeOpt.bottom) {
-            dragoffset.startX = e.clientX;
-            dragoffset.startY = e.clientY;
-            dragoffset.startW = el.offsetWidth;
-            dragoffset.startH = el.offsetHeight;
-            dragoffset.startPosX = el.offsetLeft;
-            dragoffset.startPosY = el.offsetTop;
-            isResizeReady = true;
-          } else {
-            isDragReady = true;
-          }
-        }, self._dragClickType);
-      });
-      document.addEventListener('mouseup', function (e) {
-        clearTimeout(pressTimer);
-        if (dragoffset.elem) {
-          dragoffset.elem.style.zIndex = 0;
-          if (self._grid && isDragReady) {
-            var l = self._grid.calculateDragLocation(parseFloat(dragoffset.elem.style.left),
-                                                     parseFloat(dragoffset.elem.style.top),
-                                                     parseFloat(dragoffset.elem.offsetWidth), parseFloat(dragoffset.elem.offsetHeight));
-
-            dragoffset.elem.style.top = l.y + 'px';
-            dragoffset.elem.style.left = l.x + 'px';
-          } else if (self._grid && isResizeReady) {
-            var l = self._grid.calculateResizeLocation(parseFloat(dragoffset.elem.style.left),
-                                                       parseFloat(dragoffset.elem.style.top),
-                                                       parseFloat(dragoffset.elem.offsetWidth), parseFloat(dragoffset.elem.offsetHeight),
-                                                       resizeOpt);
-            console.log(l);
-            dragoffset.elem.style.top = l.y + 'px';
-            dragoffset.elem.style.left = l.x + 'px';
-            dragoffset.elem.style.width = l.w + 'px';
-            dragoffset.elem.style.height = l.h + 'px';
-          }
-          isDragReady = false;
-          isResizeReady = false;
-          dragoffset.elem = null;
-        }
-      });
-      document.addEventListener('mousemove', function (e) {
-        if (dragoffset.elem) {
-          if (!e.pageX) {
-            e.pageX = e.pageX || e.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
-            e.pageY = e.pageY || e.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
-          }
-          if (isDragReady) {
-            dragoffset.elem.style.top = ((e.pageY - dragoffset.y) + dragoffset.elem.offsetHeight > self._container.offsetHeight ? self._container.offsetHeight - dragoffset.elem.offsetHeight : ((e.pageY - dragoffset.y) < 0 ? 0 : (e.pageY - dragoffset.y))) + 'px';
-            dragoffset.elem.style.left = ((e.pageX - dragoffset.x) + dragoffset.elem.offsetWidth > self._container.offsetWidth ? self._container.offsetWidth - dragoffset.elem.offsetWidth : ((e.pageX - dragoffset.x) < 0 ? 0 : (e.pageX - dragoffset.x))) + 'px';
-          } else if (isResizeReady) {
-            if (resizeOpt.right) {
-              dragoffset.elem.style.width = (dragoffset.startW + e.clientX - dragoffset.startX) + 'px';
-            }
-            if (resizeOpt.left) {
-              dragoffset.elem.style.left = (dragoffset.startPosX + e.clientX - dragoffset.startX) + 'px';
-              dragoffset.elem.style.width = (dragoffset.startW - e.clientX + dragoffset.startX) + 'px';
-            }
-            if (resizeOpt.top) {
-              dragoffset.elem.style.top = (dragoffset.startPosY + e.clientY - dragoffset.startY) + 'px';
-              dragoffset.elem.style.height = (dragoffset.startH - e.clientY + dragoffset.startY) + 'px';
-            }
-            if (resizeOpt.bottom) {
-              dragoffset.elem.style.height = (dragoffset.startH + e.clientY - dragoffset.startY) + 'px';
-            }
-          }
-        }
-      });
+      el.addEventListener('mousedown', function(e) { self.onTouchDown(e, el, this); });
+      document.addEventListener('mouseup', (e) => { self.onTouchUp(e); });
+      document.addEventListener('mousemove', (e) => { self.onTouchMove(e); });
     });
   }
+
+  onTouchDown(e, el, elem) {
+    var self = this;
+
+    this._pressTimer = window.setTimeout(function() {
+      elem.style.zIndex = 999;
+
+      if (e.touches) {
+        let touch = e.touches[0];
+        self._dragoffset.x = touch.pageX - el.offsetLeft;
+        self._dragoffset.y = touch.pageY - el.offsetTop;
+      } else {
+        self._dragoffset.x = e.pageX - el.offsetLeft;
+        self._dragoffset.y = e.pageY - el.offsetTop;
+      }
+
+      self._dragoffset.elem = elem;
+
+      self._resizeOpt = {
+        right: (e.pageX > parseFloat(el.style.left) + parseFloat(el.offsetWidth) - 10 && e.pageX < parseFloat(el.style.left) + parseFloat(el.offsetWidth)) ? true : false,
+        left: (e.pageX > parseFloat(el.style.left) && e.pageX < parseFloat(el.style.left) + 10) ? true : false,
+        top: (e.pageY > parseFloat(el.style.top) && e.pageY < parseFloat(el.style.top) + 10) ? true : false,
+        bottom: (e.pageY > parseFloat(el.style.top) + parseFloat(el.offsetHeight) - 10 && e.pageY < parseFloat(el.style.top) + parseFloat(el.offsetHeight)) ? true : false
+      };
+
+      if (self._resizeOpt.left || self._resizeOpt.right || self._resizeOpt.top || self._resizeOpt.bottom) {
+        self._dragoffset.startX = e.clientX;
+        self._dragoffset.startY = e.clientY;
+        self._dragoffset.startW = el.offsetWidth;
+        self._dragoffset.startH = el.offsetHeight;
+        self._dragoffset.startPosX = el.offsetLeft;
+        self._dragoffset.startPosY = el.offsetTop;
+        self._isResizeReady = true;
+      } else {
+        self._isDragReady = true;
+      }
+    }, self._dragClickType);
+  }
+
+  onTouchUp(e) {
+    clearTimeout(this._pressTimer);
+    if (this._dragoffset.elem) {
+      this._dragoffset.elem.style.zIndex = 0;
+      if (this._grid && this._isDragReady) {
+        var l = this._grid.calculateDragLocation(parseFloat(this._dragoffset.elem.style.left),
+                                                 parseFloat(this._dragoffset.elem.style.top),
+                                                 parseFloat(this._dragoffset.elem.offsetWidth), parseFloat(this._dragoffset.elem.offsetHeight));
+
+        this._dragoffset.elem.style.top = l.y + 'px';
+        this._dragoffset.elem.style.left = l.x + 'px';
+      } else if (this._grid && this._isResizeReady) {
+        var l = this._grid.calculateResizeLocation(parseFloat(this._dragoffset.elem.style.left),
+                                                   parseFloat(this._dragoffset.elem.style.top),
+                                                   parseFloat(this._dragoffset.elem.offsetWidth), parseFloat(this._dragoffset.elem.offsetHeight),
+                                                   this._resizeOpt);
+        this._dragoffset.elem.style.top = l.y + 'px';
+        this._dragoffset.elem.style.left = l.x + 'px';
+        this._dragoffset.elem.style.width = l.w + 'px';
+        this._dragoffset.elem.style.height = l.h + 'px';
+      }
+      this._isDragReady = false;
+      this._isResizeReady = false;
+      this._dragoffset.elem = null;
+    }
+  }
+
+  onTouchMove(e) {
+    if (this._dragoffset.elem) {
+      if (this._isDragReady) {
+        let pageX = e.touches ? e.touches[0].pageX : e.pageX;
+        let pageY = e.touches ? e.touches[0].pageY : e.pageY;
+        this._dragoffset.elem.style.top = ((pageY - this._dragoffset.y) + this._dragoffset.elem.offsetHeight > this._container.offsetHeight ? this._container.offsetHeight - this._dragoffset.elem.offsetHeight : ((pageY - this._dragoffset.y) < 0 ? 0 : (pageY - this._dragoffset.y))) + 'px';
+        this._dragoffset.elem.style.left = ((pageX - this._dragoffset.x) + this._dragoffset.elem.offsetWidth > this._container.offsetWidth ? this._container.offsetWidth - this._dragoffset.elem.offsetWidth : ((pageX - this._dragoffset.x) < 0 ? 0 : (pageX - this._dragoffset.x))) + 'px';
+      } else if (this._isResizeReady) {
+        if (this._resizeOpt.right) {
+          this._dragoffset.elem.style.width = (this._dragoffset.startW + e.clientX - this._dragoffset.startX) + 'px';
+        }
+        if (this._resizeOpt.left) {
+          this._dragoffset.elem.style.left = (this._dragoffset.startPosX + e.clientX - this._dragoffset.startX) + 'px';
+          this._dragoffset.elem.style.width = (this._dragoffset.startW - e.clientX + this._dragoffset.startX) + 'px';
+        }
+        if (this._resizeOpt.top) {
+          this._dragoffset.elem.style.top = (this._dragoffset.startPosY + e.clientY - this._dragoffset.startY) + 'px';
+          this._dragoffset.elem.style.height = (this._dragoffset.startH - e.clientY + this._dragoffset.startY) + 'px';
+        }
+        if (this._resizeOpt.bottom) {
+          this._dragoffset.elem.style.height = (this._dragoffset.startH + e.clientY - this._dragoffset.startY) + 'px';
+        }
+      }
+    }
+  }
+
+  // handleSepcialEvents(event, func, useCapture) {
+  //   switch (event) {
+  //     case 'pinch':
+  //       console.log('yoyo');
+  //       document.addEventListener('mousewheel', function(e) {
+  //         if(e.deltaY % 1 !== 0) {
+  //           e.preventDefault();
+  //           console.log('start pinch');
+  //         }
+  //       }, useCapture);
+  //       document.addEventListener('gestureend', func, useCapture);
+  //       break;
+  //   }
+  //
+  // }
 
   on(event, func, useCapture=false) {
     if (this._type.isString(event)) {
@@ -154,9 +181,13 @@ class MC {
 
     var elements = document.querySelectorAll(this._identifier);
     for (let value of event) {
-      Array.prototype.forEach.call(elements, function(el, i){
-        el.addEventListener(value, func);
-      });
+      if (this._specialEvents.includes(value, func))
+        this.handleSepcialEvents(value, func, useCapture);
+      else {
+        Array.prototype.forEach.call(elements, function(el, i){
+          el.addEventListener(value, func, useCapture);
+        });
+      }
     }
 
     return this;

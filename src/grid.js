@@ -82,14 +82,13 @@ export class Grid {
   }
 
   calculateResizeLocation(posX, posY, wwidth, wheight, resizeOpt) {
-    // var l = this.calculateDragLocation(posX, posY, wwidth, wheight);
-    console.log(posX + ' : ' + posY + ' : ' + wwidth + ' : ' + wheight);
     var result = {x: 0, y: 0, w: 0, h: 0};
 
     if (resizeOpt.top) {
       let results = this.calculateDragLocation(posX, posY, wwidth, wheight);
       result.y = results.y;
-      result.h = wheight - results.difHeight;
+      let ch = this._height / this._sizeY;
+      result.h = (wheight - results.difHeight) < ch ? ch - 1 : wheight - results.difHeight - 1;
     } else if (resizeOpt.bottom) {
       let results = this.calculateDragLocation(posX, posY, wwidth, wheight);
       let ch = this._height / this._sizeY;
@@ -109,6 +108,8 @@ export class Grid {
       let results = this.calculateDragLocation(posX, posY, wwidth, wheight);
       result.x = results.x;
       result.w = wwidth - results.difWidth;
+      let ch = this._width / this._sizeX;
+      result.w = (wwidth - results.difWidth) < ch ? ch - 1 : wwidth - results.difWidth - 1;
     } else if (resizeOpt.right) {
       let results = this.calculateDragLocation(posX, posY, wwidth, wheight);
       let ch = this._width / this._sizeX;
