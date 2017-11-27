@@ -196,6 +196,7 @@ class MC {
             func(this, 'in');
           }
         } else if (this._isSlideActive) {
+          this._isSlideActive = false;
           if (this._startSlideDiff[0] > this._lastSlideDiff[0] &&
               this._startSlideDiff[1] > this._lastSlideDiff[1] &&
               this._startSlideDiff[2] > this._lastSlideDiff[2]) {
